@@ -31,6 +31,7 @@ npm install
 npm run new -- my-game          # a table game in games/my-game, from the XOX example
 npm run new -- my-game --solo   # …or a solo game, from Arı Avı
 npm run dev                     # the simulator: open http://127.0.0.1:5390
+npm run check-game -- games/my-game   # the checks Kampuse runs before taking a game
 npm test                        # your rules' tests (rules.test.ts)
 ```
 
@@ -228,16 +229,29 @@ inside Kampuse. The buttons under each screen:
 **🎲 Fuzz** plays 200 random games in freshly loaded rules and logs every problem. The **Game state** tab shows the state, and what
 each player and the watcher sees, side by side. Compare them to catch something one player shouldn't see.
 
-## Before a game goes to Kampuse
+## Bring your game to Kampuse
 
-These are drafts; we'll settle them with the first developers:
+Games come to Kampuse through pull requests to **[kampuseapp/games](https://github.com/kampuseapp/games)**: one folder per game.
+Merged is approved.
 
-- It works on a phone at 360×640, in Turkish and English.
-- Everything it loads is in its own folder: no outside scripts, trackers or ads, and no collecting
-  anything about players.
-- It's fit for a campus: no gambling with real value, nothing hateful or sexual.
-- It's small: aim for under 5 MB in all, since phones also run the 3D campus.
-- We review every version before students see it, and can take a game down.
+1. Pass the checks: `npm run check-game -- games/my-game`. The games repository runs exactly these on every pull request.
+2. Fork kampuseapp/games, copy your folder to `games/my-game/`, and open a pull request.
+3. A maintainer reviews what checks can't judge: is it fun, does it work on a phone, is it fit for a campus.
+
+`check-game` first reads your game without running any of it:
+
+- **files:** only a game's own kinds of file, within the size limits, with no links and no dependencies;
+- **game.json:** complete and valid;
+- **code:** no network, no `eval`, no storage or cookies, no outside addresses, no frames, forms or links out. Imports come only
+  from the kit and the game's own folder, and the rules use nothing but the kit.
+
+If all of that passes, it runs the game's code in a process of its own, with a time limit:
+
+- the rules, fuzzed: 300 random games for each number of players, every one replayed (a table game needs `moves()`);
+- the game's tests.
+
+[kampuseapp/games](https://github.com/kampuseapp/games) has the full list of what a game may and may not do, and
+[how Kampuse keeps players safe](https://github.com/kampuseapp/games/blob/main/SECURITY.md).
 
 ## For those not using the kit's code
 
@@ -247,9 +261,9 @@ until Kampuse answers `welcome`, then gets `view`, `refused`, `players`, `pause`
 
 ## Contributing
 
-Issues and pull requests to the kit are welcome: bugs, clearer docs, more examples, better checks. To bring a
-game to Kampuse, open an issue with what it is and a link to its folder; for now we invite a few games at a
-time.
+Issues and pull requests to the kit are welcome: bugs, clearer docs, more examples, better checks. Games go to
+[kampuseapp/games](https://github.com/kampuseapp/games) instead (see above). Found a security problem? Please report it privately
+(Security tab → Report a vulnerability), not in an issue.
 
 ## License
 
