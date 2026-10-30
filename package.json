@@ -25,6 +25,7 @@
     "dev": "vite",
     "test": "vite-node scripts/test.ts",
     "new": "node scripts/new.mjs",
+    "check-game": "vite-node scripts/check-game.ts --",
     "check": "tsc -p ."
   },
   "devDependencies": {
