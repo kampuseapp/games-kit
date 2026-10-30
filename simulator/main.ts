@@ -390,12 +390,21 @@ setInterval(() => {
   for (const frame of frames.values()) frame.status.textContent = seatStatus(frame)
 }, 250)
 
-// A rules.ts saved: the rules load again in a new game (screens reload by themselves).
-import.meta.hot?.on('kit:rules', (data: { file: string }) => {
-  if (game && data.file.includes(`/${game.folder}/`)) {
-    log('info', 'kit', 'rules.ts changed: a new game with the new rules.')
-    void newGame()
+// A game's files saved (vite.config.ts gameReload): its rules.ts starts a new game with the new rules; its screen's
+// code reloads only the screens, and the game goes on (each screen says hello and is sent the game as it stands).
+import.meta.hot?.on('kit:rules', (data: { folder: string }) => {
+  if (game?.folder !== data.folder) return
+  log('info', 'kit', 'rules.ts changed: a new game with the new rules.')
+  void newGame()
+})
+import.meta.hot?.on('kit:screen', (data: { folder: string }) => {
+  if (game?.folder !== data.folder) return
+  log('info', 'kit', 'The screen changed: the screens reload, and the game goes on.')
+  for (const frame of frames.values()) {
+    frame.ready = false
+    frame.iframe.src = frame.iframe.src
   }
+  draw()
 })
 
 drawControls()

@@ -22,7 +22,7 @@ can't cheat, because Kampuse only believes the rules.
 
 ## Start
 
-You need [Node.js](https://nodejs.org) 22 or newer.
+You need [Node.js](https://nodejs.org) 20.19 or newer (22.12+ on the 22 line).
 
 ```sh
 git clone https://github.com/kampuseapp/games-kit
@@ -40,7 +40,8 @@ The examples:
 - `examples/ari`: Arı Avı, a solo game (tap the bees).
 
 The simulator lists every folder in `games/` and `examples/` with a `game.json`. Save a file and it
-updates: a screen reloads itself, and a changed `rules.ts` starts a new game.
+updates without losing your place: a screen's code reloads just the screens and the game goes on, CSS
+updates in place, and a changed `rules.ts` starts a new game with the new rules.
 
 ## game.json
 

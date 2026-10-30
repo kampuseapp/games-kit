@@ -1,14 +1,27 @@
 // The simulator's dev server: `npm run dev`, then open http://127.0.0.1:5390.
 import { fileURLToPath } from 'node:url'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, normalizePath, type Plugin } from 'vite'
 
-const root = fileURLToPath(new URL('.', import.meta.url))
+/** The kit's folder, with forward slashes on every system. */
+const root = normalizePath(fileURLToPath(new URL('.', import.meta.url))).replace(/\/?$/, '/')
 
-/** Tells the simulator when a game's rules.ts is saved, so it starts a new game with the new rules. */
-const rulesReload: Plugin = {
-  name: 'kampuse-kit-rules-reload',
+/**
+ * Saving a game's files, without losing the game in progress:
+ * - its rules.ts: the simulator starts a new game with the new rules;
+ * - its screen's code (or index.html): only the screens reload, and the game goes on;
+ * - its CSS: updated in place, as usual;
+ * - its game.json: the simulator reloads.
+ */
+const gameReload: Plugin = {
+  name: 'kampuse-kit-game-reload',
   handleHotUpdate({ file, server }) {
-    if (file.endsWith('/rules.ts')) server.ws.send({ type: 'custom', event: 'kit:rules', data: { file } })
+    const found = normalizePath(file).slice(root.length).match(/^((?:examples|games)\/[^/]+)\/(.+)$/)
+    if (!found) return
+    const [, folder, name] = found
+    if (name === 'game.json' || name.endsWith('.css')) return
+    if (name.endsWith('.test.ts')) return []
+    server.ws.send({ type: 'custom', event: name === 'rules.ts' ? 'kit:rules' : 'kit:screen', data: { folder } })
+    return []
   },
 }
 
@@ -25,5 +38,5 @@ export default defineConfig({
   // so each screen is another origin, as it is in Kampuse.
   server: { host: '127.0.0.1', port: 5390, strictPort: true },
   worker: { format: 'es' },
-  plugins: [rulesReload],
+  plugins: [gameReload],
 })

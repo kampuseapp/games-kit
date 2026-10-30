@@ -31,5 +31,5 @@ writeFileSync(screen, readFileSync(screen, 'utf8').replace(/connect(<[^>]*>)?\('
 
 console.log(`Made games/${id} from the ${solo ? 'Arı Avı' : 'XOX'} example.
 - game.json: the name, players and turn clock
-- index.html, screen.ts, style.css: what players see${solo ? '' : '\n- rules.ts: what the game allows (and rules.test.ts, its tests: npm test)'}
+- ${solo ? 'index.html (with its styles) and screen.ts' : 'index.html, screen.ts and style.css'}: what players see${solo ? '' : '\n- rules.ts: what the game allows, and rules.test.ts, its tests (npm test)'}
 Run npm run dev and pick "${name}" in the simulator.`)
