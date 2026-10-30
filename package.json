@@ -1,0 +1,33 @@
+{
+  "name": "@kampuse/games-kit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Make games for Kampuse: the kit a game uses, and a simulator to play it in before it goes to Kampuse.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kampuseapp/games-kit.git"
+  },
+  "homepage": "https://github.com/kampuseapp/games-kit#readme",
+  "bugs": {
+    "url": "https://github.com/kampuseapp/games-kit/issues"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./rules": "./src/rules.ts",
+    "./testing": "./src/testing.ts"
+  },
+  "scripts": {
+    "dev": "vite",
+    "test": "vite-node scripts/test.ts",
+    "new": "node scripts/new.mjs",
+    "check": "tsc -p ."
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0",
+    "vite-node": "^6.0.0"
+  }
+}

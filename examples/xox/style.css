@@ -1,0 +1,86 @@
+/* XOX in Kampuse's sticker look. A game may look however it likes; this is just the example. */
+:root {
+  --ink: #0e2148;
+  --soft: #4a5a7d;
+  --surface: #f6f8fc;
+  --card: #ffffff;
+  --honey: #ffc233;
+  --honey-soft: #ffe9a8;
+  --mint: #2bb673;
+  --alert: #e5484d;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--surface);
+  color: var(--ink);
+  font: 15px/1.35 system-ui, -apple-system, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.app { display: flex; flex-direction: column; gap: 14px; height: 100%; padding: 16px; }
+.loading { margin: auto; font-size: 28px; }
+
+.players { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.player {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  background: var(--card);
+  box-shadow: 0 3px 0 var(--ink);
+}
+.player.now { background: var(--honey); }
+.player.gone { opacity: 0.45; }
+.player img { width: 30px; height: 30px; }
+.player b { display: block; font-size: 14px; }
+.player small { color: var(--soft); font-weight: 700; }
+.mark { margin-left: auto; font-size: 22px; font-weight: 900; }
+
+.status { min-height: 26px; text-align: center; font-size: 18px; font-weight: 800; }
+.status .clock { font-variant-numeric: tabular-nums; color: var(--soft); }
+
+.board { display: grid; flex: none; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 8px; width: min(100%, 320px); margin: 0 auto; aspect-ratio: 1; }
+.cell {
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  background: var(--card);
+  box-shadow: 0 3px 0 var(--ink);
+  font-size: 46px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.cell:disabled { cursor: default; }
+.cell.x { color: #d97706; }
+.cell.o { color: #2563eb; }
+.cell.win { background: var(--honey-soft); }
+.cell.open:active { transform: translateY(3px); box-shadow: none; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 70px;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--card);
+  box-shadow: 0 3px 0 var(--ink);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.leave {
+  margin-top: auto;
+  align-self: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--card);
+  box-shadow: 0 3px 0 var(--ink);
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+}

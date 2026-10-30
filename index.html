@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kampuse Games Kit</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Instrument+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/simulator/style.css" />
+  </head>
+  <body>
+    <header class="bar">
+      <h1>🐝 Kampuse Games Kit <span>simulator</span></h1>
+      <div class="controls">
+        <select id="game" aria-label="Game"></select>
+        <select id="players" aria-label="Players"></select>
+        <label id="clock-wrap" title="Run the turn clock (game.json turnSeconds)"><input id="clock" type="checkbox" /> ⏱ Clock</label>
+        <label id="watch-wrap" title="Add a screen for someone watching"><input id="watch" type="checkbox" /> 👀 Watcher</label>
+        <select id="lang" aria-label="Language">
+          <option value="tr">Türkçe</option>
+          <option value="en">English</option>
+        </select>
+        <button id="fuzz" class="btn" title="Play 200 random games from rules.moves() to find what breaks">🎲 Fuzz</button>
+        <button id="new" class="btn btn-honey">New game</button>
+      </div>
+    </header>
+    <main>
+      <div id="tables" class="tables"></div>
+      <aside class="side">
+        <nav class="tabs">
+          <button class="tab on" data-tab="log">Log <span id="problems" class="badge"></span></button>
+          <button class="tab" data-tab="state">Game state</button>
+        </nav>
+        <div data-pane="log" class="pane">
+          <div class="pane-tools">
+            <label><input id="only-problems" type="checkbox" /> Problems only</label>
+            <button id="clear" class="btn btn-small">Clear</button>
+          </div>
+          <div id="log" class="log"></div>
+        </div>
+        <div data-pane="state" class="pane" hidden>
+          <div id="state" class="state"></div>
+        </div>
+      </aside>
+    </main>
+    <script type="module" src="/simulator/main.ts"></script>
+  </body>
+</html>

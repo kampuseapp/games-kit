@@ -1,0 +1,9 @@
+{
+  "id": "xox",
+  "name": "XOX",
+  "emoji": "⭕",
+  "kind": "table",
+  "players": { "min": 2, "max": 2 },
+  "turnSeconds": 20,
+  "about": "Three in a row. The kit's example of a table game: rules.ts judges every move, screen.ts draws the board."
+}
