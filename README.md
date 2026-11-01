@@ -1,48 +1,31 @@
 # Kampuse Games Kit
 
-Make a game that students play inside Kampuse: at a table on campus with friends, or alone for a score.
-This kit is everything you need: the few functions your game calls, and a **simulator** that plays your
-game the way Kampuse will, with up to four pretend students, a watcher and a turn clock.
-
-You never need Kampuse's own code. Your game talks to Kampuse only through the messages in this kit.
-
-## Two kinds of game
-
-| | **Table game** (`"kind": "table"`) | **Solo game** (`"kind": "solo"`) |
-|---|---|---|
-| Players | 2 to 4, at a table | 1 |
-| Files | `game.json`, `index.html` (the screen), `rules.ts` | `game.json`, `index.html` |
-| Who decides what happens | Your **rules**, which Kampuse runs on its side | Your screen |
-| Turns | One player (or more) at a time, with a clock | – |
-| Ends with | `rules.result()` saying who won | `score(n, true)` |
-
-A table game is split in two on purpose. The **screen** draws the game and sends taps as moves. The
-**rules** judge every move and say what each player sees. A student who changes their own screen still
-can't cheat, because Kampuse only believes the rules.
+Make games for [Kampuse](https://kampuse.com): the functions a game calls, and a simulator that plays it the way Kampuse will.
+You never need Kampuse's own code.
 
 ## Start
 
-You need [Node.js](https://nodejs.org) 20.19 or newer (22.12+ on the 22 line).
+Needs [Node.js](https://nodejs.org) 20.19+ (22.12+ on the 22 line).
 
 ```sh
-git clone https://github.com/kampuseapp/games-kit
-cd games-kit
-npm install
-npm run new -- my-game          # a table game in games/my-game, from the XOX example
-npm run new -- my-game --solo   # …or a solo game, from Arı Avı
-npm run dev                     # the simulator: open http://127.0.0.1:5390
-npm run check-game -- games/my-game   # the checks Kampuse runs before taking a game
-npm test                        # your rules' tests (rules.test.ts)
+git clone https://github.com/kampuseapp/games-kit && cd games-kit && npm install
+npm run new -- my-game                # table game, from examples/xox
+npm run new -- my-game --solo         # solo game, from examples/ari
+npm run dev                           # simulator at http://127.0.0.1:5390
+npm test                              # every rules.test.ts
+npm run check-game -- games/my-game   # the checks a game must pass
 ```
 
-The examples:
+## Two kinds of game
 
-- `examples/xox`: XOX (tic-tac-toe), a two-player table game, with tests.
-- `examples/ari`: Arı Avı, a solo game (tap the bees).
+| | Table | Solo |
+|---|---|---|
+| Players | 2 to 4, with a turn clock | 1 |
+| Files | `game.json`, `index.html`, `rules.ts` | `game.json`, `index.html` |
+| Decides what happens | Your rules, run by Kampuse | Your screen |
+| Ends with | `rules.result()` | `score(n, true)` |
 
-The simulator lists every folder in `games/` and `examples/` with a `game.json`. Save a file and it
-updates without losing your place: a screen's code reloads just the screens and the game goes on, CSS
-updates in place, and a changed `rules.ts` starts a new game with the new rules.
+The screen draws and sends moves; the rules judge them. Changing your own screen can't cheat.
 
 ## game.json
 
@@ -58,50 +41,40 @@ updates in place, and a changed `rules.ts` starts a new game with the new rules.
 }
 ```
 
-- `id`: 2 to 24 lowercase letters, digits or dashes. It never changes once the game is in Kampuse.
-- `turnSeconds`: 5 to 300. Each turn's clock (table games).
+`id`: 2 to 24 lowercase letters, digits or dashes, fixed once in Kampuse. `kind`: `table` or `solo`. `turnSeconds`: 5 to 300.
 
 ## The screen
 
-`index.html` is an ordinary web page. Use any framework or none. It runs in a frame of its own inside
-Kampuse, the size of a phone screen (about 360×640 and up; design for portrait).
+`index.html` is a web page in a phone-sized frame: portrait, about 360×640 and up, any framework or none.
 
 ```ts
 import { connect } from '@kampuse/games-kit'
 
 const kampuse = await connect<MyView>('my-game')   // the id from game.json
 
-kampuse.me          // you: { side, username, name, avatar, in }. side is -1 when watching.
+kampuse.me          // { side, username, name, avatar, in }; side -1 is a watcher
 kampuse.players     // everyone at the table, by side
 kampuse.lang        // 'tr' or 'en': write your text in both
-kampuse.watching    // true for someone watching, who can't move
+kampuse.watching    // true for a watcher
 
-kampuse.on('view', (turn) => draw(turn))   // after every change, and at once when you start listening
+kampuse.on('view', (turn) => draw(turn))           // every change, and at once
 kampuse.on('refused', (reason) => toast(reason))
-kampuse.on('players', (players) => …)      // someone left
-kampuse.on('pause', () => …)               // the student put the game away for a moment: stop sounds
+kampuse.on('players', (players) => …)              // someone left
+kampuse.on('pause', () => …)                       // put away: stop sounds
 kampuse.on('resume', () => …)
 
-kampuse.move({ cell: 4 })   // table games: a move for the rules to judge
+kampuse.move({ cell: 4 })   // table: a move for the rules to judge
 kampuse.leave()             // leaving a table counts as losing
-kampuse.score(120)          // solo games: the score so far
-kampuse.score(120, true)    // …and when the round is over
+kampuse.score(120)          // solo: the score so far
+kampuse.score(120, true)    // solo: the round is over
 ```
 
-A view arrives as `{ view, turn, ends, seq, over }`:
+A view is `{ view, turn, ends, seq, over }`: what your rules show, the sides to move, when the clock ends on this device (ms) or
+`null`, a counter, and `{ winners: [sides] }` (`[]` is a draw) or `null`.
 
-- `view`: what your rules show this player.
-- `turn`: whose move it is (sides). Empty once the game is over.
-- `ends`: when the turn's clock runs out, on this device's clock (ms), or `null`.
-- `seq`: goes up with every change.
-- `over`: `{ winners: [sides] }` once it's over (`[]` is a draw), else `null`.
-
-Don't decide anything on the screen: send the move and draw the next view. Don't count on browser
-storage or cookies either; ask us if your game needs to remember something.
+Decide nothing on the screen. Don't rely on browser storage or cookies.
 
 ## The rules (table games)
-
-`rules.ts` exports plain functions over plain data:
 
 ```ts
 import { defineRules, refuse } from '@kampuse/games-kit/rules'
@@ -109,162 +82,66 @@ import { defineRules, refuse } from '@kampuse/games-kit/rules'
 export default defineRules<State, Move, View>({
   setup: (ctx) => …,                  // the game as it starts
   turn: (state) => [state.next],      // whose move it is; [] once it's over
-  move(state, side, move, ctx) {      // a move from a side whose turn it is
+  move(state, side, move, ctx) {
     if (!valid(move)) return refuse('Pick a square.')
-    …
     return state                      // the state after it
   },
   view: (state, side) => …,           // what a side sees (null: a watcher)
   result: (state) => …,               // { winners: [sides] }, or null while it goes on
-  moves: (state, side) => […],        // optional, but worth it: every move a side could make now
-  timeout: (state, side, ctx) => …,   // optional: the clock ran out (play for them, or pass)
+  moves: (state, side) => […],        // optional: gives bots, fuzzing and a fair timeout
+  timeout: (state, side, ctx) => …,   // optional: the clock ran out
   leave: (state, side, ctx) => …,     // optional: the game without someone who left
 })
 ```
 
-**`moves()` is optional, but worth writing.** With it you get:
+- **Plain JSON state.** No classes, `Date`, `Map`, `undefined` or functions.
+- **`ctx.random()` and `ctx.now` only,** never `Math.random()` or `Date.now()`. Games are replayed to check results.
+- **Nothing outside the state.** You may change the state you're given and return it.
+- **Check every move.** Refuse with a short English reason.
+- **Show only what a player may see.**
+- **Well under 50 ms a call.** No network, storage or timers. Keep `moves()` in a stable order.
 
-- bots in the simulator, so you can test a 4-player game alone;
-- fuzzing, which plays hundreds of random games to find bugs;
-- a fair default when a player's clock runs out: Kampuse plays one of their moves at random.
+Kampuse handles seats, invites, the clock, watchers and chat. Only a side whose turn it is reaches `move()`.
 
-Keep its order the same for the same state.
+- **Clock runs out:** `timeout()`, else a random `moves()`, else it counts as leaving. So do three timeouts in a row.
+- **Someone leaves:** `leave()`, else the game ends and everyone still in wins.
 
-The golden rules:
-
-1. **Only plain JSON in the state**: objects, arrays, strings, numbers, booleans, null. No classes,
-   `Date`, `Map`, `undefined` or functions.
-2. **Use `ctx.random()` and `ctx.now`**, never `Math.random()` or `Date.now()`. Kampuse replays games
-   from their moves to check results. A game must come out the same every time.
-3. **Keep nothing outside the state.** No variables at the top of the file that change. Each call gets
-   the state and returns the new one. You may change the state you're given and return it.
-4. **Check every move.** It comes from a player's phone. Refuse anything odd with a short reason in
-   English. Your screen can translate it, as the XOX example does.
-5. **Show each player only what they may see.** With hidden cards, `view` leaves out the others' hands.
-6. **Be quick.** Each call should take well under 50 ms. Rules can't use the network, storage or timers.
-
-Kampuse does the rest: seats, invites, the turn clock, watchers, chat, and who left.
-
-- Only moves from a side whose turn it is reach your rules.
-- Three turns in a row left to the clock count as leaving.
-- **When the clock runs out:** `timeout()` decides. Without it, a random move from `moves()` is played. Without either, it counts as
-  leaving.
-- **When someone leaves:** `leave()` decides. Without it, the game ends, and everyone still in wins.
-
-## Testing your rules
-
-Rules are plain functions, so you can test them like any other code, without a browser:
+## Testing
 
 ```ts
-// games/my-game/rules.test.ts (npm test runs every rules.test.ts)
-import assert from 'node:assert/strict'
-import { test } from 'node:test'
 import { fuzz, startGame } from '@kampuse/games-kit/testing'
-import rules from './rules'
 
-test('three in a row wins', () => {
-  const game = startGame(rules, { players: 2, seed: 7 })   // the same seed, the same game
-  const first = game.turn[0]
-  game.move(first, { cell: 0 })                            // { ok: true }, or { refused: 'reason' }
-  …
-  assert.deepEqual(game.over, { winners: [first] })
-  assert.ok(game.replays())
-})
-
-test('500 random games, no problems', () => {
-  const report = fuzz(rules, { games: 500, players: 2 })   // needs moves()
-  assert.deepEqual(report.problems, [])
-})
+const game = startGame(rules, { players: 2, seed: 7 })     // acts like a Kampuse table
+game.move(game.turn[0], { cell: 0 })                       // { ok: true } or { refused: 'reason' }
+assert.ok(game.replays())
+assert.deepEqual(fuzz(rules, { games: 500, players: 2 }).problems, [])   // needs moves()
 ```
 
-A test game behaves as a Kampuse table does. It refuses moves out of turn and after the end, and has `timeout(side)` and
-`leave(side)`. It also gives `view(side)`, `moves(side)`, `state`, `steps`, and `notes` (warnings such as `Math.random` used). A bug
-in the rules throws a `RulesError` that says what is wrong.
-
-`fuzz()` plays random games from `moves()`, now and then letting the clock run out or leaving. It checks every view at every step,
-and reports:
-
-- rules that throw;
-- `moves()` listing a move that `move()` refuses;
-- a turn with nothing to play;
-- a side that has left still being given turns;
-- games that never end;
-- games that don't replay the same;
-- every warning the checks give.
-
-`examples/xox/rules.test.ts` is a full example.
+Full example: `examples/xox/rules.test.ts`.
 
 ## Limits
 
-| | |
-|---|---|
-| A move | 4 KB of JSON |
-| A view | 16 KB of JSON |
-| The state | 64 KB of JSON |
-| One rules call | 50 ms |
-| Moves a second, per player | 10 |
-| Turns left to the clock before it counts as leaving | 3 |
+Move 4 KB, view 16 KB, state 64 KB of JSON. 50 ms a rules call. 10 moves a second per player.
 
-## What the simulator checks
+## The simulator
 
-The log (with **Problems only** to filter) and the **Game state** tab show:
+Lists every folder in `games/` and `examples/` with a `game.json`, and keeps your place when you save. Under each screen: 🤖 Bot,
+⏸ Pause, ↻ Reload, 🚪 Leave. 🎲 Fuzz plays 200 games, and **Game state** shows every player's view side by side. The log flags
+broken rules, and a ✗ at the end of a game means it didn't replay the same.
 
-- every message between each screen and the table;
-- rules that throw, return something that isn't plain JSON, or go over a limit;
-- rules that use `Math.random` or `Date.now`;
-- a bot's move from `moves()` that `move()` refuses;
-- rules stuck in a loop (stopped after 2 s, then loaded again);
-- moves that are too big or too fast, and messages the kit doesn't know;
-- a **replay check** at the end of every game, which plays it again from its moves in freshly loaded
-  rules and compares the end. A ✗ means the rules depend on something besides the state and `ctx`.
+## Bring your game
 
-Each screen loads from another address than the simulator (`localhost` or `127.0.0.1`), as it will
-inside Kampuse. The buttons under each screen:
+Pass `check-game`, then open a pull request to **[kampuseapp/games](https://github.com/kampuseapp/games)**. Merged is approved.
 
-- **🤖 Bot:** a bot plays that seat, from `moves()`. Seat bots in every chair and watch a whole game.
-- **⏸ Pause:** acts as if the student closed the phone app.
-- **↻ Reload:** reloads one screen mid-game.
-- **🚪 Leave:** that player leaves the table.
+## Without the kit's code
 
-**🎲 Fuzz** plays 200 random games in freshly loaded rules and logs every problem. The **Game state** tab shows the state, and what
-each player and the watcher sees, side by side. Compare them to catch something one player shouldn't see.
-
-## Bring your game to Kampuse
-
-Games come to Kampuse through pull requests to **[kampuseapp/games](https://github.com/kampuseapp/games)**: one folder per game.
-Merged is approved.
-
-1. Pass the checks: `npm run check-game -- games/my-game`. The games repository runs exactly these on every pull request.
-2. Fork kampuseapp/games, copy your folder to `games/my-game/`, and open a pull request.
-3. A maintainer reviews what checks can't judge: is it fun, does it work on a phone, is it fit for a campus.
-
-`check-game` first reads your game without running any of it:
-
-- **files:** only a game's own kinds of file, within the size limits, with no links and no dependencies;
-- **game.json:** complete and valid;
-- **code:** no network, no `eval`, no storage or cookies, no outside addresses, no frames, forms or links out. Imports come only
-  from the kit and the game's own folder, and the rules use nothing but the kit.
-
-If all of that passes, it runs the game's code in a process of its own, with a time limit:
-
-- the rules, fuzzed: 300 random games for each number of players, every one replayed (a table game needs `moves()`);
-- the game's tests.
-
-[kampuseapp/games](https://github.com/kampuseapp/games) has the full list of what a game may and may not do, and
-[how Kampuse keeps players safe](https://github.com/kampuseapp/games/blob/main/SECURITY.md).
-
-## For those not using the kit's code
-
-The messages are in `src/protocol.ts`. Every message carries `kampuse: 1`. The screen says `hello`
-until Kampuse answers `welcome`, then gets `view`, `refused`, `players`, `pause` and `resume`. It sends
-`move`, `leave` and `score`.
+The messages are in `src/protocol.ts`, each with `kampuse: 1`.
 
 ## Contributing
 
-Issues and pull requests to the kit are welcome: bugs, clearer docs, more examples, better checks. Games go to
-[kampuseapp/games](https://github.com/kampuseapp/games) instead (see above). Found a security problem? Please report it privately
-(Security tab → Report a vulnerability), not in an issue.
+Issues and pull requests welcome; games go to [kampuseapp/games](https://github.com/kampuseapp/games). Report security problems
+privately: Security tab → Report a vulnerability.
 
 ## License
 
-MIT, see [LICENSE](LICENSE). Your games are yours: the licence covers this kit, not what you make with it.
+MIT, see [LICENSE](LICENSE). It covers this kit, not the games you make with it.
