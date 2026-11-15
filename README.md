@@ -1,7 +1,7 @@
-# Kampuse Games Kit
+# Kampüse Games Kit
 
-Make games for [Kampuse](https://kampuse.com): the functions a game calls, and a simulator that plays it the way Kampuse will.
-You never need Kampuse's own code.
+Make games for [Kampüse](https://kampuse.com): the functions a game calls, and a simulator that plays it the way Kampüse will.
+You never need Kampüse's own code.
 
 ## Start
 
@@ -22,7 +22,7 @@ npm run check-game -- games/my-game   # the checks a game must pass
 |---|---|---|
 | Players | 2 to 4, with a turn clock | 1 |
 | Files | `game.json`, `index.html`, `rules.ts` | `game.json`, `index.html` |
-| Decides what happens | Your rules, run by Kampuse | Your screen |
+| Decides what happens | Your rules, run by Kampüse | Your screen |
 | Ends with | `rules.result()` | `score(n, true)` |
 
 The screen draws and sends moves; the rules judge them. Changing your own screen can't cheat.
@@ -41,7 +41,7 @@ The screen draws and sends moves; the rules judge them. Changing your own screen
 }
 ```
 
-`id`: 2 to 24 lowercase letters, digits or dashes, fixed once in Kampuse. `kind`: `table` or `solo`. `turnSeconds`: 5 to 300.
+`id`: 2 to 24 lowercase letters, digits or dashes, fixed once in Kampüse. `kind`: `table` or `solo`. `turnSeconds`: 5 to 300.
 
 ## The screen
 
@@ -88,7 +88,7 @@ export default defineRules<State, Move, View>({
   },
   view: (state, side) => …,           // what a side sees (null: a watcher)
   result: (state) => …,               // { winners: [sides] }, or null while it goes on
-  moves: (state, side) => […],        // optional: gives bots, fuzzing and a fair timeout
+  moves: (state, side) => […],        // every legal move: bots, fuzzing and a fair timeout (check-game needs it)
   timeout: (state, side, ctx) => …,   // optional: the clock ran out
   leave: (state, side, ctx) => …,     // optional: the game without someone who left
 })
@@ -99,9 +99,11 @@ export default defineRules<State, Move, View>({
 - **Nothing outside the state.** You may change the state you're given and return it.
 - **Check every move.** Refuse with a short English reason.
 - **Show only what a player may see.**
+- **`moves()` is required for a table game.** `check-game` fails without it: it fuzzes your rules, gives the bots their moves
+  and plays for someone whose clock runs out.
 - **Well under 50 ms a call.** No network, storage or timers. Keep `moves()` in a stable order.
 
-Kampuse handles seats, invites, the clock, watchers and chat. Only a side whose turn it is reaches `move()`.
+Kampüse handles seats, invites, the clock, watchers and chat. Only a side whose turn it is reaches `move()`.
 
 - **Clock runs out:** `timeout()`, else a random `moves()`, else it counts as leaving. So do three timeouts in a row.
 - **Someone leaves:** `leave()`, else the game ends and everyone still in wins.
@@ -111,7 +113,7 @@ Kampuse handles seats, invites, the clock, watchers and chat. Only a side whose 
 ```ts
 import { fuzz, startGame } from '@kampuse/games-kit/testing'
 
-const game = startGame(rules, { players: 2, seed: 7 })     // acts like a Kampuse table
+const game = startGame(rules, { players: 2, seed: 7 })     // acts like a Kampüse table
 game.move(game.turn[0], { cell: 0 })                       // { ok: true } or { refused: 'reason' }
 assert.ok(game.replays())
 assert.deepEqual(fuzz(rules, { games: 500, players: 2 }).problems, [])   // needs moves()
