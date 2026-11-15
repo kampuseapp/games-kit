@@ -49,7 +49,7 @@ const WAIT_MS = 10_000
  * you are. Rejects when the page is not opened by Kampuse.
  */
 export function connect<V = unknown>(game: string): Promise<Kampuse<V>> {
-  if (window.parent === window) return Promise.reject(new Error('Open this game in Kampuse or in the kit’s simulator (npm run dev).'))
+  if (window.parent === window) return Promise.reject(new Error('Open this game in Kampüse or in the kit’s simulator (npm run dev).'))
   const send = (msg: ScreenMsg) => window.parent.postMessage(envelope(msg), '*')
   const listeners: { [E in keyof Events<V>]: Set<Events<V>[E]> } = { view: new Set(), refused: new Set(), players: new Set(), pause: new Set(), resume: new Set() }
   const emit = <E extends keyof Events<V>>(event: E, ...args: Parameters<Events<V>[E]>) => {
@@ -129,7 +129,7 @@ export function connect<V = unknown>(game: string): Promise<Kampuse<V>> {
     const giveUp = setTimeout(() => {
       clearInterval(hello)
       window.removeEventListener('message', onMessage)
-      reject(new Error('Kampuse did not answer. Is this page open in the simulator?'))
+      reject(new Error('Kampüse did not answer. Is this page open in the simulator?'))
     }, WAIT_MS)
   })
 }

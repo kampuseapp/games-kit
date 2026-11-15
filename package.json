@@ -2,7 +2,7 @@
   "name": "@kampuse/games-kit",
   "version": "0.1.0",
   "private": true,
-  "description": "Make games for Kampuse: the kit a game uses, and a simulator to play it in before it goes to Kampuse.",
+  "description": "Make games for Kampüse: the kit a game uses, and a simulator to play it in before it goes to Kampüse.",
   "license": "MIT",
   "repository": {
     "type": "git",

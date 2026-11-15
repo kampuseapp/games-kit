@@ -320,7 +320,7 @@ function main() {
       console.log(`    ${report.error}`)
     } else if (!report.has?.moves) {
       failed++
-      say(false, 'rules: moves() is missing. Kampuse needs it to fuzz your rules and to play for someone whose clock runs out.')
+      say(false, 'rules: moves() is missing. Kampüse needs it to fuzz your rules and to play for someone whose clock runs out.')
     } else
       for (const r of report.runs ?? []) {
         const ok = !r.problems.length && r.ended === r.games
